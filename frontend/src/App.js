@@ -23,7 +23,7 @@ function App() {
 
       try {
         const res = await axios.get(`${API_URL}/user/verify`, {
-          headers: { Authorization: token },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         setIsLogin(res.data);
