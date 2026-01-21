@@ -1,46 +1,55 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './Login.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState } from "react";
+import axios from "axios";
+import "./Login.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+// ✅ Backend base URL from Vercel env variables
+const API_URL = process.env.REACT_APP_API_URL;
 
 function Login({ setIsLogin }) {
   const [user, setUser] = useState({
-    name: '', email: '', password: ''
+    name: "",
+    email: "",
+    password: "",
   });
 
-  const [err, setErr] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false); // Toggle between login and register
+  const [err, setErr] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const onChangeInput = (e) => {
     const { name, value } = e.target;
     setUser({ ...user, [name]: value });
-    setErr('');
+    setErr("");
   };
 
+  // ✅ REGISTER
   const registerSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/user/register', {
+      const res = await axios.post(`${API_URL}/user/register`, {
         username: user.name,
         email: user.email,
-        password: user.password
+        password: user.password,
       });
-      setUser({ name: '', email: '', password: '' });
+
+      setUser({ name: "", email: "", password: "" });
       setErr(res.data.msg);
     } catch (err) {
       err.response?.data?.msg && setErr(err.response.data.msg);
     }
   };
 
+  // ✅ LOGIN
   const loginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/user/login', {
+      const res = await axios.post(`${API_URL}/user/login`, {
         email: user.email,
-        password: user.password
+        password: user.password,
       });
-      setUser({ name: '', email: '', password: '' });
-      localStorage.setItem('tokenStore', res.data.token);
+
+      setUser({ name: "", email: "", password: "" });
+      localStorage.setItem("tokenStore", res.data.token);
       setIsLogin(true);
     } catch (err) {
       err.response?.data?.msg && setErr(err.response.data.msg);
@@ -50,7 +59,6 @@ function Login({ setIsLogin }) {
   return (
     <section className="login-page">
       <div className="login-signup">
-        {/* Conditional rendering for Login and Register forms */}
         {!isRegistering ? (
           <div className="outer">
             <div className="inner">
@@ -83,33 +91,19 @@ function Login({ setIsLogin }) {
                   />
                 </div>
 
-                <div className="form-group">
-                  <div className="custom-control custom-checkbox">
-                    <input
-                      type="checkbox"
-                      className="custom-control-input"
-                      id="customCheck1"
-                    />
-                    <label
-                      className="custom-control-label"
-                      htmlFor="customCheck1"
-                    >
-                      Remember me
-                    </label>
-                  </div>
-                </div>
-
                 <div className="d-grid gap-2">
                   <button className="btn btn-primary" type="submit">
                     Sign In
                   </button>
                 </div>
+
                 <p className="next_page">
-                  You don't have an account?{' '}
+                  You don't have an account?{" "}
                   <span onClick={() => setIsRegistering(true)}>
                     Register now
                   </span>
                 </p>
+
                 <h4>{err}</h4>
               </form>
             </div>
@@ -164,12 +158,14 @@ function Login({ setIsLogin }) {
                     Register
                   </button>
                 </div>
+
                 <p className="next_page">
-                  You have an account?{' '}
+                  You have an account?{" "}
                   <span onClick={() => setIsRegistering(false)}>
                     Login Now
                   </span>
                 </p>
+
                 <h4>{err}</h4>
               </form>
             </div>
