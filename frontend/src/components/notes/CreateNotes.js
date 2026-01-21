@@ -1,48 +1,48 @@
 import React, { useState } from 'react'
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import './createNotes.css'
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function CreateNotes() {
-
   const [note, setNote] = useState({
-    title: " ",
-    content: " ",
-    date: " ",
-
+    title: '',
+    content: '',
+    date: '',
   })
 
   const history = useNavigate()
 
-  const onChaneInput = e => {
+  const onChangeInput = e => {
     const { name, value } = e.target;
     setNote({ ...note, [name]: value })
   }
 
-  const createNote = async e=>{
+  const createNote = async e => {
     e.preventDefault()
     try {
       const token = localStorage.getItem('tokenStore')
-      if(token){
-        const {title,content,date} = note;
-        const newNote = {
-          title,content, date
-        }
+      if (token) {
+        const { title, content, date } = note;
+        const newNote = { title, content, date }
 
-        await axios.post('/api/notes',newNote,{
-          headers:{Authorization:token}
+        await axios.post(`${API_URL}/api/notes`, newNote, {
+          headers: { Authorization: `Bearer ${token}` }
         })
 
-        return history.push('/')
-
+        history('/') // redirect after success
       }
-      
     } catch (err) {
-      window.location.href="/";
+      if (err.response?.status === 401) {
+        localStorage.clear()
+        history('/')
+      } else {
+        console.error(err)
+        alert('Failed to create note')
+      }
     }
   }
-
-
 
   return (
     <div className="create-note">
@@ -52,22 +52,23 @@ function CreateNotes() {
         <div className="row">
           <label htmlFor="title">Title</label>
           <input type="text" id='title' name="title"
-            value={note.title} required onChange={onChaneInput}
+            value={note.title} required onChange={onChangeInput}
           />
         </div>
 
         <div className="row">
           <label htmlFor="content">Content</label>
-          <textarea cols="30" rows="10" type="textarea" id='content'  name="content"
+          <textarea cols="30" rows="10" id='content'  name="content"
             value={note.content} required
-            onChange={onChaneInput}
+            onChange={onChangeInput}
           ></textarea>
         </div>
 
-        <label htmlFor="date">Date:{note.date}</label>
+        <label htmlFor="date">Date: {note.date}</label>
         <div className="row">
           <input type="date" id='date' name="date"
-             onChange={onChaneInput}
+             value={note.date}
+             onChange={onChangeInput}
           />
         </div>
 
