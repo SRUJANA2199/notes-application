@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import './createNotes.css'
 
-const API_URL = process.env.REACT_APP_API_URL
-// https://vercel-backendd-3.onrender.com
+// ✅ Backend URL
+const API_URL = process.env.REACT_APP_API_URL || 'https://vercel-backendd-3.onrender.com'
 
 function CreateNotes() {
   const [note, setNote] = useState({
@@ -24,7 +24,7 @@ function CreateNotes() {
     e.preventDefault()
 
     try {
-      // ✅ FIXED token key
+      // ✅ Use the same token key everywhere
       const token = localStorage.getItem('tokenStore')
 
       if (!token) {
@@ -33,22 +33,25 @@ function CreateNotes() {
         return
       }
 
+      // ✅ Include Content-Type header for JSON
       await axios.post(
         `${API_URL}/api/notes`,
         note,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         }
       )
 
-      navigate('/') // success
+      navigate('/') // Redirect on success
     } catch (err) {
       console.error(err)
 
-      if (err.response?.status === 401) {
-        localStorage.clear()
+      if (err.response?.data?.msg === 'Authorization is not valid.') {
+        alert('Login expired. Please login again.')
+        localStorage.removeItem('tokenStore')
         navigate('/')
       } else {
         alert('Failed to create note')
@@ -85,8 +88,8 @@ function CreateNotes() {
           />
         </div>
 
-        <label htmlFor="date">Date: {note.date}</label>
         <div className="row">
+          <label htmlFor="date">Date</label>
           <input
             type="date"
             id="date"
